@@ -12,7 +12,22 @@ interface MonthDay {
 
 const Main = () => {
 
-    const [currentDate, setCurrentDate] = useState<Date>(new Date());
+    const [currentDay, setCurrentDay] = useState(new Date().getDate());
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [currentHours, setCurrentHours] = useState(new Date().getHours());
+    const [currentMinutes, setCurrentMinutes] = useState(new Date().getMinutes());
+    const [currentSeconds, setCurrentSeconds] = useState(new Date().getSeconds());
+    const [currentMilliseconds, setCurrentMilliseconds] = useState(new Date().getMilliseconds());
+
+    const [currentDate, setCurrentDate] = useState<Date>(new Date(
+        currentYear, 
+        currentMonth, 
+        currentDay, 
+        currentHours, 
+        currentMinutes, 
+        currentSeconds, 
+        currentMilliseconds));
     const [currentMonthArray, setCurrentMonthArray] = useState<MonthDay[]>([]);
 
     const isLeapYear = (year: number): boolean => {
@@ -62,6 +77,7 @@ const Main = () => {
         }
     }
 
+
     const renderCalendarMonth = (date: Date) => {
         const monthArr = [];
         const amountOfDaysInCurrentMonth = daysInMonth(date.getMonth(), date.getFullYear());
@@ -100,7 +116,6 @@ const Main = () => {
             });
         }
 
-        console.log(monthArr);
         setCurrentMonthArray(monthArr);
     }
 
@@ -120,9 +135,37 @@ const Main = () => {
         }
     }
 
+    const onLeftArrowClick = () => {
+        setCurrentMonth(prevMonth => prevMonth - 1);
+    }
+    
+    const onRightArrowClick = () => {
+        setCurrentMonth(prevMonth => prevMonth + 1);
+        
+    }
+
     useEffect(() => {
-        renderCalendarMonth(currentDate);
-    }, [currentDate]);
+
+        const newDate = new Date(
+            currentYear, 
+            currentMonth, 
+            currentDay, 
+            currentHours, 
+            currentMinutes, 
+            currentSeconds, 
+            currentMilliseconds
+        );
+
+        setCurrentDate(newDate);
+        renderCalendarMonth(newDate);
+        console.log(currentDate);
+    }, [currentYear, 
+        currentMonth, 
+        currentDay, 
+        currentHours, 
+        currentMinutes, 
+        currentSeconds, 
+        currentMilliseconds]);
 
 
     return (
@@ -131,9 +174,9 @@ const Main = () => {
                 <button className="create-button">+</button>
                 <div className="date-pick">
                     <div className="month-select">
-                        <img src={arrow_left} className="arrow"/>
+                        <img src={arrow_left} className="arrow" onClick={onLeftArrowClick}/>
                         <p>September 2024</p>
-                        <img src={arrow_right} className="arrow"/>
+                        <img src={arrow_right} className="arrow" onClick={onRightArrowClick}/>
                     </div>
                     <input type="date" />
                 </div>
