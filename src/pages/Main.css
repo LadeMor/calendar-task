@@ -1,0 +1,114 @@
+header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10px 20px 10px;
+}
+
+.date-pick{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.month-select{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.create-button{
+   width: 40px;
+   height: 40px;
+   font-size: 30px;
+   border-radius: 100%;
+   background-color:cornflowerblue;
+   border: none;
+   color: white;
+   box-shadow: 0px 0px 5px grey;
+   cursor: pointer;
+   transition: .3s;
+}
+
+.create-button:hover{
+    background-color: white;
+    color: black;
+}
+
+.create-button:active{
+    transform: scale(0.8);
+}
+
+.month-select p{
+    margin: 0;
+    font-size: 20px;
+}
+
+.arrow{
+    width: 20px;
+    padding: 5px;
+    border-radius: 10px;
+    transition: .3s;
+}
+
+.arrow:hover{
+    background-color: lightgray;
+    cursor: pointer;
+   
+}
+
+.arrow:active{
+    transform: scale(0.8);
+}
+
+#calendar{
+
+}
+
+.calendar-wrapper{
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    display: grid;
+    grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr ; 
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr ;  
+}
+
+.date-block{
+    background-color: white;
+    border: 1px solid gray;
+    position: relative;
+    transition: .3s;
+}
+
+.date-block:hover{
+    background-color:rgb(236, 225, 185);
+}
+
+.prev-month-theme{
+    background-color: lightgray;
+}
+
+.current-day-theme{
+    background-color:rgb(180, 238, 180);
+}
+
+.date-block h4{
+    margin: 0;
+}
+
+.week-day-num{
+    position: absolute;
+    top:10px;
+    left: 10px;
+    color: grey;
+}
+
+.weed-day-label{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: grey;
+}
