@@ -3,11 +3,19 @@ import "./Main.css";
 
 import arrow_left from "../assets/icons/chevron-left.svg";
 import arrow_right from "../assets/icons/chevron-right.svg";
+import cross from "../assets/icons/cross.svg";
 
 interface MonthDay {
     dayNum: number,
     isCurrentMonth: boolean,
     date: Date
+}
+
+interface TaskData{
+    title: string,
+    description: string,
+    date: string,
+    time: string
 }
 
 const Main = () => {
@@ -29,6 +37,15 @@ const Main = () => {
         currentSeconds, 
         currentMilliseconds));
     const [currentMonthArray, setCurrentMonthArray] = useState<MonthDay[]>([]);
+
+    const [isModuleOpen, setIsModuleOpen] = useState(false);
+
+    const [taskData, setTaskData] = useState<TaskData>({
+        title: "",
+        description: "",
+        date: "",
+        time: ""
+    });
 
     const isLeapYear = (year: number): boolean => {
         return year % 4 === 0;
@@ -77,6 +94,49 @@ const Main = () => {
         }
     }
 
+    const monthSelect = (monthIndex: number): string => {
+        switch(monthIndex){
+            case 0:
+                return "January";
+                break;
+            case 1:
+                return "February";
+                break;
+            case 2: 
+                return "March";
+                break;
+            case 3:
+                return "April";
+                break;
+            case 4:
+                return "May";
+                break;
+            case 5:
+                return "June";
+                break;
+            case 6:
+                return "July";
+                break;
+            case 7:
+                return "August";
+                break;
+            case 8:
+                return "September";
+                break;
+            case 9:
+                return "October";
+                break;
+            case 10:
+                return "November";
+                break;
+            case 11:
+                return "December";
+                break;
+            default:
+                return "";
+                break;
+        }
+    }
 
     const renderCalendarMonth = (date: Date) => {
         const monthArr = [];
@@ -158,7 +218,7 @@ const Main = () => {
 
         setCurrentDate(newDate);
         renderCalendarMonth(newDate);
-        console.log(currentDate);
+        
     }, [currentYear, 
         currentMonth, 
         currentDay, 
@@ -168,17 +228,46 @@ const Main = () => {
         currentMilliseconds]);
 
 
+    const onDatePickerChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+
+        const selectedDate = new Date(e.target.value);
+
+        setCurrentYear(selectedDate.getFullYear());
+        setCurrentMonth(selectedDate.getMonth());
+        setCurrentDay(selectedDate.getDate())
+    }
+
+    const onCreateTaskSubmit = (e:React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.currentTarget);
+        
+        const taskData = {
+            title: formData.get("title") as string,
+            describtion: formData.get("description") as string,
+            date: formData.get("date") as string ,
+            time: formData.get("time") as string
+        }
+
+        localStorage.setItem("TaskData", JSON.stringify(taskData));
+    }
+
+    const moduleWindowSwitch = (e: React.MouseEvent<HTMLElement> ) => {
+        setIsModuleOpen(!isModuleOpen);
+    }
+
     return (
         <>
             <header>
-                <button className="create-button">+</button>
+                <button className="create-button" onClick={moduleWindowSwitch}>+</button>
                 <div className="date-pick">
                     <div className="month-select">
                         <img src={arrow_left} className="arrow" onClick={onLeftArrowClick}/>
-                        <p>September 2024</p>
+                        <p>{monthSelect(currentDate.getMonth())} {currentDate.getFullYear()}</p>
                         <img src={arrow_right} className="arrow" onClick={onRightArrowClick}/>
                     </div>
-                    <input type="date" />
+                    <input type="date" onChange={onDatePickerChange}/>
                 </div>
             </header>
             <section id="calendar">
@@ -186,10 +275,35 @@ const Main = () => {
                     {currentMonthArray.map((item, index) => (
                         <div className={`date-block ${selectDayColorTheme(item.date, item.isCurrentMonth)}`} key={index}>
                             <h4 className="week-day-num">{item.dayNum}</h4>
-                            <h4 className="weed-day-label">{dayOfWeekSelect(item.date.getDay())}</h4>
+                            <h4 className="week-day-label">{dayOfWeekSelect(item.date.getDay())}</h4>
                         </div>
                     ))}
                 </div>
+            </section>
+            <section id="module-create-task" className={`${isModuleOpen ? "show" : "hide"}`}>
+                    <form className="create-task" onSubmit={onCreateTaskSubmit}>
+                        <div className="create-task-title-block">
+                            <h2>Create task</h2>
+                            <img src={cross} alt="Cross icon" onClick={moduleWindowSwitch}/>
+                        </div>
+                        <div className="input-block">
+                            <label htmlFor="title">Title</label>
+                            <input type="text" name="title" required/>
+                        </div>
+                        <div className="input-block">
+                            <label htmlFor="description">Description</label>
+                            <input type="text" name="description" required/>
+                        </div>
+                        <div className="input-block">
+                            <label htmlFor="date">Date</label>
+                            <input type="date" name="date" required/>
+                        </div>
+                        <div className="input-block">
+                            <label htmlFor="time">Time</label>
+                            <input type="time" name="time"/>
+                        </div>
+                        <button >Create</button>
+                    </form>
             </section>
         </>
     );
