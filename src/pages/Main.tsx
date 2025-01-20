@@ -241,26 +241,34 @@ const Main = () => {
     const onCreateTaskSubmit = (e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const formData = new FormData(e.currentTarget);
-        
-        const taskData = {
-            title: formData.get("title") as string,
-            describtion: formData.get("description") as string,
-            date: formData.get("date") as string ,
-            time: formData.get("time") as string
-        }
-
-        localStorage.setItem("TaskData", JSON.stringify(taskData));
     }
 
-    const moduleWindowSwitch = (e: React.MouseEvent<HTMLElement> ) => {
-        setIsModuleOpen(!isModuleOpen);
+    const moduleWindowOpen = (data?: Partial<TaskData> ) => {
+
+
+        //const taskDate = `${data?.date.getFullYear()}`
+
+        setTaskData({
+            title:"",
+            description: "",
+            date: "",
+            time: "",
+            ...data, 
+        })
+
+        setIsModuleOpen(true);
+
+        console.log(taskData.date);
+    }
+
+    const moduleWindowClose = () => {
+        setIsModuleOpen(false);
     }
 
     return (
         <>
             <header>
-                <button className="create-button" onClick={moduleWindowSwitch}>+</button>
+                <button className="create-button" onClick={() => moduleWindowOpen()}>+</button>
                 <div className="date-pick">
                     <div className="month-select">
                         <img src={arrow_left} className="arrow" onClick={onLeftArrowClick}/>
@@ -273,7 +281,8 @@ const Main = () => {
             <section id="calendar">
                 <div className="calendar-wrapper">
                     {currentMonthArray.map((item, index) => (
-                        <div className={`date-block ${selectDayColorTheme(item.date, item.isCurrentMonth)}`} key={index}>
+                        <div className={`date-block ${selectDayColorTheme(item.date, item.isCurrentMonth)}`} key={index}
+                        onClick={() => moduleWindowOpen({date: item.date.toString()})}>
                             <h4 className="week-day-num">{item.dayNum}</h4>
                             <h4 className="week-day-label">{dayOfWeekSelect(item.date.getDay())}</h4>
                         </div>
@@ -284,23 +293,31 @@ const Main = () => {
                     <form className="create-task" onSubmit={onCreateTaskSubmit}>
                         <div className="create-task-title-block">
                             <h2>Create task</h2>
-                            <img src={cross} alt="Cross icon" onClick={moduleWindowSwitch}/>
+                            <img src={cross} alt="Cross icon" onClick={moduleWindowClose}/>
                         </div>
                         <div className="input-block">
                             <label htmlFor="title">Title</label>
-                            <input type="text" name="title" required/>
+                            <input type="text" name="title" required 
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, title: e.target.value})}}
+                            value={taskData.title}/>
                         </div>
                         <div className="input-block">
                             <label htmlFor="description">Description</label>
-                            <input type="text" name="description" required/>
+                            <input type="text" name="description" required 
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, description: e.target.value})}}
+                            value={taskData.description}/>
                         </div>
                         <div className="input-block">
                             <label htmlFor="date">Date</label>
-                            <input type="date" name="date" required/>
+                            <input type="date" name="date" required 
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, date: e.target.value})}}
+                            value={taskData.date}/>
                         </div>
                         <div className="input-block">
                             <label htmlFor="time">Time</label>
-                            <input type="time" name="time"/>
+                            <input type="time" name="time" 
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, time: e.target.value})}}
+                            value={taskData.time}/>
                         </div>
                         <button >Create</button>
                     </form>
