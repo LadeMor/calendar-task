@@ -81,6 +81,10 @@ header{
     border: 1px solid gray;
     position: relative;
     transition: .3s;
+    padding-top: 35px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 30px;
 }
 
 .date-block:hover{
@@ -191,4 +195,36 @@ header{
 
 .create-task button:hover{
     background-color: grey;
+}
+
+/*****************************************************************************************/
+
+.task-list{
+
+    height: 120px;
+    box-sizing: border-box;
+    padding: 5px;
+    overflow: scroll;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-list::-webkit-scrollbar {
+    display: none;
+}
+
+.task-item{
+    background-color: lightblue;
+    border-radius: 3px;
+    padding: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.task-item p{
+    margin: 0;
 }

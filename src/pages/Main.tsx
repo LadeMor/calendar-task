@@ -14,7 +14,8 @@ import cross from "../assets/icons/cross.svg";
 interface MonthDay {
     dayNum: number,
     isCurrentMonth: boolean,
-    date: Date
+    date: Date,
+    dayTasks: TaskData[]
 }
 
 interface TaskData{
@@ -60,6 +61,7 @@ const Main = () => {
         if(data){
             const jsonData = JSON.parse(data);
             setTaskList(jsonData);
+            
         }else{
             setTaskList([]);
         }
@@ -90,21 +92,32 @@ const Main = () => {
             monthArr.push({
                 dayNum: startCountFromPrevMonth + 1,
                 isCurrentMonth: false,
-                date: new Date(yearOfPreviousMonth, previousMonth, startCountFromPrevMonth + 1)
+                date: new Date(yearOfPreviousMonth, previousMonth, startCountFromPrevMonth + 1),
+                dayTasks: taskList.filter(t => new Date(t.date).getDate() == startCountFromPrevMonth + 1 && 
+                new Date(t.date).getMonth() == previousMonth &&
+                new Date(t.date).getFullYear() == yearOfPreviousMonth)
             });
             startCountFromPrevMonth++;
         }
+
 
         for (let i = 1; i <= amountOfDaysInCurrentMonth; i++) {
             monthArr.push({
                 dayNum: i,
                 isCurrentMonth: true,
-                date: new Date(date.getFullYear(), date.getMonth(), i)
+                date: new Date(date.getFullYear(), date.getMonth(), i),
+                dayTasks: taskList.filter(t => new Date(t.date).getDate() ==  i && 
+                new Date(t.date).getMonth() == date.getMonth() &&
+                new Date(t.date).getFullYear() == date.getFullYear())
             });
         }
 
         setCurrentMonthArray(monthArr);
     }
+
+    useEffect(() => {
+        console.log(currentMonthArray);
+    }, [currentMonthArray])
 
     const selectDayColorTheme = (date: Date, currentMonth: boolean): string => {
         const today = new Date();
@@ -152,8 +165,8 @@ const Main = () => {
         currentHours, 
         currentMinutes, 
         currentSeconds, 
-        currentMilliseconds]);
-
+        currentMilliseconds,
+        taskList]);
 
     const onDatePickerChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
@@ -166,22 +179,29 @@ const Main = () => {
     }
 
     const onCreateTaskSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
 
         const {title, time, date, description} = taskData;
 
         if(title != "" &&
-            time != "" &&
             date != "" &&
             description != ""
         ){
             await setTaskList([...taskList, taskData]);
+            setTaskData({
+                title:"",
+                description: "",
+                date: "",
+                time: "",
+            })
+    
+            setIsModuleOpen(false);
         }
     }
 
     useEffect(() => {
-        console.log(taskList);
-        localStorage.setItem("TaskList", JSON.stringify(taskList));
+        if(taskList.length > 0){
+            localStorage.setItem("TaskList", JSON.stringify(taskList));
+        }
     }, [taskList])
 
     const moduleWindowOpen = (data?: Partial<TaskData> ) => {
@@ -223,6 +243,14 @@ const Main = () => {
                         onClick={() => moduleWindowOpen({date: item.date.toString()})}>
                             <h4 className="week-day-num">{item.dayNum}</h4>
                             <h4 className="week-day-label">{dayOfWeekSelect(item.date.getDay())}</h4>
+                            <div className="task-list">
+                                {item.dayTasks.length > 0 && item.dayTasks.map(task => (
+                                    <div className="task-item">
+                                        <p style={{fontWeight:"bold"}}>{task.title}</p>
+                                        <p>{task.time.length > 0 && task.time}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ))}
                 </div>
