@@ -24,6 +24,22 @@ export const daysInMonth = (month: number, year: number): number => {
     }
 }
 
+export const selectDayColorTheme = (date: Date, currentMonth: boolean): string => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+
+    if (today.getTime() === compareDate.getTime()) {
+        return "current-day-theme";
+    } else if (!currentMonth) {
+        return "prev-month-theme";
+    } else {
+        return "";
+    }
+}
+
 export const dayOfWeekSelect = (day: number): string => {
     switch (day) {
         case 0:

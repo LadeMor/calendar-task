@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { 
-    isLeapYear, 
-    daysInMonth, 
-    dayOfWeekSelect, 
-    monthSelect, 
-    formatDateNumber } from "../components/functions";
+import {
+    isLeapYear,
+    daysInMonth,
+    dayOfWeekSelect,
+    monthSelect,
+    formatDateNumber,
+    selectDayColorTheme
+} from "../components/functions";
 import "./Main.css";
 
 import arrow_left from "../assets/icons/chevron-left.svg";
@@ -18,7 +20,7 @@ interface MonthDay {
     dayTasks: TaskData[]
 }
 
-interface TaskData{
+interface TaskData {
     title: string,
     description: string,
     date: string,
@@ -36,12 +38,12 @@ const Main = () => {
     const [currentMilliseconds, setCurrentMilliseconds] = useState(new Date().getMilliseconds());
 
     const [currentDate, setCurrentDate] = useState<Date>(new Date(
-        currentYear, 
-        currentMonth, 
-        currentDay, 
-        currentHours, 
-        currentMinutes, 
-        currentSeconds, 
+        currentYear,
+        currentMonth,
+        currentDay,
+        currentHours,
+        currentMinutes,
+        currentSeconds,
         currentMilliseconds));
     const [currentMonthArray, setCurrentMonthArray] = useState<MonthDay[]>([]);
 
@@ -58,16 +60,46 @@ const Main = () => {
 
     useEffect(() => {
         const data = localStorage.getItem("TaskList");
-        if(data){
+        if (data) {
             const jsonData = JSON.parse(data);
             setTaskList(jsonData);
-            
-        }else{
+
+        } else {
             setTaskList([]);
         }
     }, [])
 
-    const renderCalendarMonth = (date: Date) => {
+    useEffect(() => {
+
+        const newDate = new Date(
+            currentYear,
+            currentMonth,
+            currentDay,
+            currentHours,
+            currentMinutes,
+            currentSeconds,
+            currentMilliseconds
+        );
+
+        setCurrentDate(newDate);
+        renderCalendarMonth(newDate);
+
+    }, [currentYear,
+        currentMonth,
+        currentDay,
+        currentHours,
+        currentMinutes,
+        currentSeconds,
+        currentMilliseconds,
+        taskList]);
+
+    useEffect(() => {
+        if (taskList.length > 0) {
+            localStorage.setItem("TaskList", JSON.stringify(taskList));
+        }
+    }, [taskList])
+
+    function renderCalendarMonth(date: Date) {
         const monthArr = [];
         const amountOfDaysInCurrentMonth = daysInMonth(date.getMonth(), date.getFullYear());
         let previousMonth = 0;
@@ -93,9 +125,9 @@ const Main = () => {
                 dayNum: startCountFromPrevMonth + 1,
                 isCurrentMonth: false,
                 date: new Date(yearOfPreviousMonth, previousMonth, startCountFromPrevMonth + 1),
-                dayTasks: taskList.filter(t => new Date(t.date).getDate() == startCountFromPrevMonth + 1 && 
-                new Date(t.date).getMonth() == previousMonth &&
-                new Date(t.date).getFullYear() == yearOfPreviousMonth)
+                dayTasks: taskList.filter(t => new Date(t.date).getDate() == startCountFromPrevMonth + 1 &&
+                    new Date(t.date).getMonth() == previousMonth &&
+                    new Date(t.date).getFullYear() == yearOfPreviousMonth)
             });
             startCountFromPrevMonth++;
         }
@@ -106,69 +138,25 @@ const Main = () => {
                 dayNum: i,
                 isCurrentMonth: true,
                 date: new Date(date.getFullYear(), date.getMonth(), i),
-                dayTasks: taskList.filter(t => new Date(t.date).getDate() ==  i && 
-                new Date(t.date).getMonth() == date.getMonth() &&
-                new Date(t.date).getFullYear() == date.getFullYear())
+                dayTasks: taskList.filter(t => new Date(t.date).getDate() == i &&
+                    new Date(t.date).getMonth() == date.getMonth() &&
+                    new Date(t.date).getFullYear() == date.getFullYear())
             });
         }
 
         setCurrentMonthArray(monthArr);
     }
 
-    useEffect(() => {
-        console.log(currentMonthArray);
-    }, [currentMonthArray])
-
-    const selectDayColorTheme = (date: Date, currentMonth: boolean): string => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const compareDate = new Date(date);
-        compareDate.setHours(0, 0, 0, 0);
-
-        if (today.getTime() === compareDate.getTime()) {
-            return "current-day-theme";
-        } else if (!currentMonth) {
-            return "prev-month-theme";
-        } else {
-            return "";
-        }
-    }
-
     const onLeftArrowClick = () => {
         setCurrentMonth(prevMonth => prevMonth - 1);
     }
-    
+
     const onRightArrowClick = () => {
         setCurrentMonth(prevMonth => prevMonth + 1);
-        
+
     }
 
-    useEffect(() => {
-
-        const newDate = new Date(
-            currentYear, 
-            currentMonth, 
-            currentDay, 
-            currentHours, 
-            currentMinutes, 
-            currentSeconds, 
-            currentMilliseconds
-        );
-
-        setCurrentDate(newDate);
-        renderCalendarMonth(newDate);
-        
-    }, [currentYear, 
-        currentMonth, 
-        currentDay, 
-        currentHours, 
-        currentMinutes, 
-        currentSeconds, 
-        currentMilliseconds,
-        taskList]);
-
-    const onDatePickerChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const onDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
 
         const selectedDate = new Date(e.target.value);
@@ -178,39 +166,33 @@ const Main = () => {
         setCurrentDay(selectedDate.getDate())
     }
 
-    const onCreateTaskSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
+    const onCreateTaskSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
-        const {title, time, date, description} = taskData;
+        const { title, time, date, description } = taskData;
 
-        if(title != "" &&
+        if (title != "" &&
             date != "" &&
             description != ""
-        ){
+        ) {
             await setTaskList([...taskList, taskData]);
             setTaskData({
-                title:"",
+                title: "",
                 description: "",
                 date: "",
                 time: "",
             })
-    
+
             setIsModuleOpen(false);
         }
     }
 
-    useEffect(() => {
-        if(taskList.length > 0){
-            localStorage.setItem("TaskList", JSON.stringify(taskList));
-        }
-    }, [taskList])
-
-    const moduleWindowOpen = (data?: Partial<TaskData> ) => {
+    const moduleWindowOpen = (data?: Partial<TaskData>) => {
 
         const pickedDate = data?.date ? new Date(data?.date) : new Date();
-        const formatedDate = `${pickedDate.getFullYear()}-${formatDateNumber(pickedDate.getMonth()+1)}-${formatDateNumber(pickedDate.getDate())}`
+        const formatedDate = `${pickedDate.getFullYear()}-${formatDateNumber(pickedDate.getMonth() + 1)}-${formatDateNumber(pickedDate.getDate())}`
 
         setTaskData({
-            title:"",
+            title: "",
             description: "",
             date: formatedDate,
             time: "",
@@ -229,24 +211,24 @@ const Main = () => {
                 <button className="create-button" onClick={() => moduleWindowOpen()}>+</button>
                 <div className="date-pick">
                     <div className="month-select">
-                        <img src={arrow_left} className="arrow" onClick={onLeftArrowClick}/>
+                        <img src={arrow_left} className="arrow" onClick={onLeftArrowClick} />
                         <p>{monthSelect(currentDate.getMonth())} {currentDate.getFullYear()}</p>
-                        <img src={arrow_right} className="arrow" onClick={onRightArrowClick}/>
+                        <img src={arrow_right} className="arrow" onClick={onRightArrowClick} />
                     </div>
-                    <input type="date" onChange={onDatePickerChange}/>
+                    <input type="date" onChange={onDatePickerChange} />
                 </div>
             </header>
             <section id="calendar">
                 <div className="calendar-wrapper">
                     {currentMonthArray.map((item, index) => (
                         <div className={`date-block ${selectDayColorTheme(item.date, item.isCurrentMonth)}`} key={index}
-                        onClick={() => moduleWindowOpen({date: item.date.toString()})}>
+                            onClick={() => moduleWindowOpen({ date: item.date.toString() })}>
                             <h4 className="week-day-num">{item.dayNum}</h4>
                             <h4 className="week-day-label">{dayOfWeekSelect(item.date.getDay())}</h4>
                             <div className="task-list">
                                 {item.dayTasks.length > 0 && item.dayTasks.map(task => (
                                     <div className="task-item">
-                                        <p style={{fontWeight:"bold"}}>{task.title}</p>
+                                        <p style={{ fontWeight: "bold" }}>{task.title}</p>
                                         <p>{task.time.length > 0 && task.time}</p>
                                     </div>
                                 ))}
@@ -256,37 +238,37 @@ const Main = () => {
                 </div>
             </section>
             <section id="module-create-task" className={`${isModuleOpen ? "show" : "hide"}`}>
-                    <form className="create-task" onSubmit={onCreateTaskSubmit}>
-                        <div className="create-task-title-block">
-                            <h2>Create task</h2>
-                            <img src={cross} alt="Cross icon" onClick={moduleWindowClose}/>
-                        </div>
-                        <div className="input-block">
-                            <label htmlFor="title">Title</label>
-                            <input type="text" name="title" required 
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, title: e.target.value})}}
-                            value={taskData.title}/>
-                        </div>
-                        <div className="input-block">
-                            <label htmlFor="description">Description</label>
-                            <input type="text" name="description" required 
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, description: e.target.value})}}
-                            value={taskData.description}/>
-                        </div>
-                        <div className="input-block">
-                            <label htmlFor="date">Date</label>
-                            <input type="date" name="date" required 
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, date: e.target.value})}}
-                            value={taskData.date}/>
-                        </div>
-                        <div className="input-block">
-                            <label htmlFor="time">Time</label>
-                            <input type="time" name="time" 
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {setTaskData({...taskData, time: e.target.value})}}
-                            value={taskData.time}/>
-                        </div>
-                        <button >Create</button>
-                    </form>
+                <form className="create-task" onSubmit={onCreateTaskSubmit}>
+                    <div className="create-task-title-block">
+                        <h2>Create task</h2>
+                        <img src={cross} alt="Cross icon" onClick={moduleWindowClose} />
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="title">Title</label>
+                        <input type="text" name="title" required
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTaskData({ ...taskData, title: e.target.value }) }}
+                            value={taskData.title} />
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="description">Description</label>
+                        <input type="text" name="description" required
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTaskData({ ...taskData, description: e.target.value }) }}
+                            value={taskData.description} />
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="date">Date</label>
+                        <input type="date" name="date" required
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTaskData({ ...taskData, date: e.target.value }) }}
+                            value={taskData.date} />
+                    </div>
+                    <div className="input-block">
+                        <label htmlFor="time">Time</label>
+                        <input type="time" name="time"
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setTaskData({ ...taskData, time: e.target.value }) }}
+                            value={taskData.time} />
+                    </div>
+                    <button >Create</button>
+                </form>
             </section>
         </>
     );
